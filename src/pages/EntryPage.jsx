@@ -72,12 +72,13 @@ export default function EntryPage() {
       const data = await res.json()
       if (!res.ok) throw new Error(data.error ?? 'Sync failed')
 
-      const { nav, currency } = data
-      const rate = profile?.usd_thb_rate ?? 35
-      const navTHB = currency === 'THB' ? nav : nav * rate
+      const { nav, currency, navTHB, usdThbRate, rateSource } = data
+      const rateLabel = rateSource === 'yahoo_live'
+        ? `live ฿${usdThbRate.toFixed(3)}/USD`
+        : `fallback ฿${usdThbRate}/USD`
 
       setField(accId, 'balance', navTHB.toFixed(2))
-      setField(accId, 'notes', `Auto-synced from IBKR (${nav.toFixed(2)} ${currency} @ ${rate})`)
+      setField(accId, 'notes', `IBKR auto-sync: ${nav.toFixed(2)} ${currency} × ${rateLabel}`)
     } catch (err) {
       setError(`IBKR sync failed: ${err.message}`)
     } finally {
